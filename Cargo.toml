@@ -1,0 +1,16 @@
+[package]
+name = "radicle-ci-broker"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nikolas Vourlakis <nvourlakis@protonmail.com>"]
+
+[dependencies]
+anyhow = { version = "1" }
+
+[dependencies.radicle-cob]
+version = "0"
+path = "../radicle-cob"
+
+[dependencies.radicle-term]
+version = "0"
+path = "../radicle-term"
