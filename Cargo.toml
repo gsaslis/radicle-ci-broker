@@ -7,6 +7,10 @@ authors = ["Nikolas Vourlakis <nvourlakis@protonmail.com>"]
 [dependencies]
 anyhow = { version = "1" }
 
+[dependencies.radicle]
+version = "0"
+path = "../radicle"
+
 [dependencies.radicle-cob]
 version = "0"
 path = "../radicle-cob"
@@ -14,3 +18,4 @@ path = "../radicle-cob"
 [dependencies.radicle-term]
 version = "0"
 path = "../radicle-term"
+
