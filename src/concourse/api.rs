@@ -87,6 +87,20 @@ resources:
 
         Ok(())
     }
+
+    pub async fn unpause_pipeline(&self, project_id: String) -> Result<()> {
+        let request = Request::builder()
+            .method("PUT")
+            .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/unpause", self.concourse_uri, project_id))
+            .header(AUTHORIZATION, format!("Basic {}", self.token.clone().unwrap().access_token))
+            .body("".into())?;
+
+        let _response = self.client.request(request).await?;
+        // let body = hyper::body::aggregate(response).await?;
+        // let result = serde_json::from_reader(body.reader())?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -119,35 +133,20 @@ mod test {
             project_name,
             patch_branch,
             patch_head,
-            project_id,
+            project_id.clone(),
             git_uri,
         ).await;
 
         match result {
-            Ok(_) => println!("everythig good"),
-            Err(error) => println!("{}", error),
+            Ok(_) => println!("create pipeline success"),
+            Err(error) => println!("create pipeline error {}", error),
+        }
+
+        let result  = api.unpause_pipeline(project_id).await;
+
+        match result {
+            Ok(_) => println!("unpause pipeline success"),
+            Err(error) => println!("upause pipeline error {}", error),
         }
     }
 }
-/*
-curl -X PUT --location "http://localhost:8080/api/v1/teams/main/pipelines/poc-configure/config" \
-    -H "Authorization: Bearer 1kWMntyii+Lf/Xtvy4y6cOmneMtVAqNkAAAAAA" \
-    -H "Content-Type: application/x-yaml" \
-    -H "x-concourse-config-version: 1" \
-    -d "jobs:
-- name: configure-pipeline
-  plan:
-  - get: poc
-    version: 2f80df32b7f1a2b2f76abde539deb97961a2d1b4
-    trigger: false
-  - set_pipeline: poc
-    file: /Users/nikolas/Projects/rust/heartwood/hello-world.yaml
-
-resources:
-- name: heartwood
-  type: git
-  icon: git
-  source:
-    uri: https://seed.radicle.xyz/z3gqcJUoA1n9HaHKufZs5FCSGazv5.git
-    branch: patch/5d086e8"
- */
