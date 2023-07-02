@@ -47,7 +47,6 @@ impl ConcourseAPI {
         let body = hyper::body::aggregate(response).await?;
         let token: Token = serde_json::from_reader(body.reader())?;
 
-        println!("setting token");
         self.token = Some(token.clone());
 
         Ok(token)
@@ -76,7 +75,7 @@ resources:
         let request = Request::builder()
             .method("PUT")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/config", self.concourse_uri, project_id))
-            .header(AUTHORIZATION, format!("Basic {}", self.token.clone().unwrap().access_token))
+            .header(AUTHORIZATION, format!("Basic {}", self.token.as_ref().unwrap().access_token))
             .header(CONTENT_TYPE, "application/x-yaml")
             .header("x-concourse-config-version", "1")
             .body(body.into())?;
@@ -92,7 +91,7 @@ resources:
         let request = Request::builder()
             .method("PUT")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/unpause", self.concourse_uri, project_id))
-            .header(AUTHORIZATION, format!("Basic {}", self.token.clone().unwrap().access_token))
+            .header(AUTHORIZATION, format!("Basic {}", self.token.as_ref().unwrap().access_token))
             .body("".into())?;
 
         let _response = self.client.request(request).await?;
@@ -106,7 +105,7 @@ resources:
         let request = Request::builder()
             .method("POST")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/jobs/configure-pipeline/builds", self.concourse_uri, project_id))
-            .header(AUTHORIZATION, format!("Basic {}", self.token.clone().unwrap().access_token))
+            .header(AUTHORIZATION, format!("Basic {}", self.token.as_ref().unwrap().access_token))
             .body("".into())?;
 
         let _response = self.client.request(request).await?;
@@ -120,7 +119,7 @@ resources:
         let request = Request::builder()
             .method("POST")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}/jobs", self.concourse_uri, project_id))
-            .header(AUTHORIZATION, format!("Basic {}", self.token.clone().unwrap().access_token))
+            .header(AUTHORIZATION, format!("Basic {}", self.token.as_ref().unwrap().access_token))
             .body("".into())?;
 
         let _response = self.client.request(request).await?;
@@ -134,7 +133,7 @@ resources:
         let request = Request::builder()
             .method("POST")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}/jobs/{}/builds", self.concourse_uri, project_id, job_name))
-            .header(AUTHORIZATION, format!("Basic {}", self.token.clone().unwrap().access_token))
+            .header(AUTHORIZATION, format!("Basic {}", self.token.as_ref().unwrap().access_token))
             .body("".into())?;
 
         let _response = self.client.request(request).await?;
