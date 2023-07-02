@@ -1,4 +1,4 @@
-use hyper::{Client, Request};
+use hyper::{Client, Request, StatusCode};
 use hyper::body::Buf;
 use hyper::client::HttpConnector;
 use hyper::header::{AUTHORIZATION, CONTENT_TYPE};
@@ -12,6 +12,19 @@ pub struct Token {
     pub expires_in: i64,
     pub id_token: String,
     pub token_type: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Job {
+    pub id: i64,
+    pub team_name: String,
+    pub name: String,
+    pub status: String,
+    pub api_url: String,
+    pub job_name: String,
+    pub pipeline_id: i64,
+    pub pipeline_name: String,
+    pub created_by: String,
 }
 
 pub struct ConcourseAPI {
@@ -87,7 +100,7 @@ resources:
         Ok(())
     }
 
-    pub async fn unpause_pipeline(&self, project_id: String) -> Result<()> {
+    pub async fn unpause_pipeline(&self, project_id: String) -> Result<(())> {
         let request = Request::builder()
             .method("PUT")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/unpause", self.concourse_uri, project_id))
@@ -101,18 +114,18 @@ resources:
         Ok(())
     }
 
-    pub async fn trigger_pipeline_configuration(&self, project_id: String) -> Result<()> {
+    pub async fn trigger_pipeline_configuration(&self, project_id: String) -> Result<Job> {
         let request = Request::builder()
             .method("POST")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/jobs/configure-pipeline/builds", self.concourse_uri, project_id))
             .header(AUTHORIZATION, format!("Basic {}", self.token.as_ref().unwrap().access_token))
             .body("".into())?;
 
-        let _response = self.client.request(request).await?;
-        // let body = hyper::body::aggregate(response).await?;
-        // let result = serde_json::from_reader(body.reader())?;
+        let response = self.client.request(request).await?;
+        let body = hyper::body::aggregate(response).await?;
+        let job: Job = serde_json::from_reader(body.reader())?;
 
-        Ok(())
+        Ok(job)
     }
 
     pub async fn get_pipeline_jobs(&self, project_id: String) -> Result<()> {
@@ -138,72 +151,8 @@ resources:
 
         let _response = self.client.request(request).await?;
         // let body = hyper::body::aggregate(response).await?;
-        // let result = serde_json::from_reader(body.reader())?;
+        // let result: Job = serde_json::from_reader(body.reader())?;
 
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::concourse::api::ConcourseAPI;
-
-    #[tokio::test]
-    pub async fn hello() {
-        let mut api = ConcourseAPI::new(
-            String::from("http://127.0.0.1:8080"),
-            String::from("test"),
-            String::from("test"),
-        );
-        let result = api.get_access_token().await;
-
-        if let Ok(token) = result {
-            println!("Access token: {}", token.access_token);
-        } else {
-            assert!(false);
-        }
-
-        let project_name = String::from("heartwood");
-        let git_uri = String::from("https://seed.radicle.xyz/z3gqcJUoA1n9HaHKufZs5FCSGazv5.git");
-        let project_id = String::from("heartwood");
-        let patch_branch = String::from("d718d61870a1634455292d3ab6d2ba928157db19");
-        let patch_head = String::from("ae16039b9d809a07f69e66844f4c539f6564ea3e");
-
-
-        let result = api.create_pipeline(
-            project_name,
-            patch_branch,
-            patch_head,
-            project_id.clone(),
-            git_uri,
-        ).await;
-        match result {
-            Ok(_) => println!("create pipeline success"),
-            Err(error) => println!("create pipeline error {}", error),
-        }
-
-        let result = api.unpause_pipeline(project_id.clone()).await;
-        match result {
-            Ok(_) => println!("unpause pipeline success"),
-            Err(error) => println!("upause pipeline error {}", error),
-        }
-
-        let result = api.trigger_pipeline_configuration(project_id.clone()).await;
-        match result {
-            Ok(_) => println!("trigger pipeline configuration success"),
-            Err(error) => println!("trigger pipeline configuration error {}", error),
-        }
-
-        let result = api.get_pipeline_jobs(project_id.clone()).await;
-        match result {
-            Ok(_) => println!("get pipeline jobs success"),
-            Err(error) => println!("get pipeline jobs error {}", error),
-        }
-
-        let result = api.trigger_job(project_id.clone(), String::from("job name")).await;
-        match result {
-            Ok(_) => println!("trigger job success"),
-            Err(error) => println!("trigger job error {}", error),
-        }
     }
 }
