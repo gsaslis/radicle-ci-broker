@@ -101,6 +101,20 @@ resources:
 
         Ok(())
     }
+
+    pub async fn trigger_pipeline_configuration(&self, project_id: String) -> Result<()> {
+        let request = Request::builder()
+            .method("POST")
+            .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/jobs/configure-pipeline/builds", self.concourse_uri, project_id))
+            .header(AUTHORIZATION, format!("Basic {}", self.token.clone().unwrap().access_token))
+            .body("".into())?;
+
+        let _response = self.client.request(request).await?;
+        // let body = hyper::body::aggregate(response).await?;
+        // let result = serde_json::from_reader(body.reader())?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -136,17 +150,21 @@ mod test {
             project_id.clone(),
             git_uri,
         ).await;
-
         match result {
             Ok(_) => println!("create pipeline success"),
             Err(error) => println!("create pipeline error {}", error),
         }
 
-        let result  = api.unpause_pipeline(project_id).await;
-
+        let result = api.unpause_pipeline(project_id.clone()).await;
         match result {
             Ok(_) => println!("unpause pipeline success"),
             Err(error) => println!("upause pipeline error {}", error),
+        }
+
+        let result = api.trigger_pipeline_configuration(project_id.clone()).await;
+        match result {
+            Ok(_) => println!("trigger pipeline configuration success"),
+            Err(error) => println!("trigger pipeline configuration error {}", error),
         }
     }
 }
