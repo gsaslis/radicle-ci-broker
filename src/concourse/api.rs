@@ -19,7 +19,7 @@ pub struct Token {
 }
 
 #[derive(Deserialize, Debug)]
-struct PlanStep {
+pub struct PlanStep {
     pub get: Option<String>,
     pub version: Option<String>,
     pub file: Option<String>,
@@ -27,19 +27,19 @@ struct PlanStep {
 }
 
 #[derive(Deserialize, Debug)]
-struct PipelineJob {
+pub struct PipelineJob {
     pub name: String,
     pub plan: Vec<PlanStep>,
 }
 
 #[derive(Deserialize, Debug)]
-struct Source {
+pub struct Source {
     pub branch: String,
     pub uri: String,
 }
 
 #[derive(Deserialize, Debug)]
-struct Resource {
+pub struct Resource {
     pub name: String,
     #[serde(rename = "type")]
     pub r#type: String,
@@ -48,17 +48,17 @@ struct Resource {
 }
 
 #[derive(Deserialize, Debug)]
-struct Config {
+pub struct Config {
     pub resources: Vec<Resource>,
     pub jobs: Vec<PipelineJob>,
 }
 
 #[derive(Deserialize, Debug)]
-struct PipelineConfiguration {
+pub struct PipelineConfiguration {
     pub config: Config,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug)]
 pub struct PipelineConfigurationJob {
     pub id: i64,
     pub team_name: String,
@@ -71,13 +71,13 @@ pub struct PipelineConfigurationJob {
     pub created_by: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug)]
 pub struct Job {
-    id: i32,
-    name: String,
-    team_name: String,
-    pipeline_id: i32,
-    pipeline_name: String,
+    pub id: i32,
+    pub name: String,
+    pub team_name: String,
+    pub pipeline_id: i32,
+    pub pipeline_name: String,
 }
 
 async fn deserialize_json_response<T>(response: Response<Body>) -> Result<T>
@@ -98,6 +98,7 @@ async fn deserialize_string_response(response: Response<Body>) -> Result<String>
     Ok(result.to_string())
 }
 
+#[derive(Clone)]
 pub struct ConcourseAPI {
     client: Client<HttpConnector>,
     ci_pass: String,
