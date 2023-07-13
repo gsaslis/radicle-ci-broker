@@ -1,26 +1,18 @@
 [package]
-name = "radicle-ci-broker"
+name = "radicle-ci"
+license = "MIT OR Apache-2.0"
 version = "0.1.0"
-edition = "2021"
 authors = ["Nikolas Vourlakis <nvourlakis@protonmail.com>"]
+edition = "2021"
 
 [dependencies]
-anyhow = { version = "1" }
+anyhow = "1.0.71"
 crossbeam-channel = "0.5.8"
-hyper = { version = "0.14", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1.28.2", features = ["full"] }
+hyper = { version = "0.14.27", features = ["full"] }
+serde = { version = "1.0.171", features = ["derive"] }
+serde_json = "1.0.102"
+tokio = { version = "1.29.1", features = ["full"] }
 
-[dependencies.radicle]
-version = "0"
-path = "../radicle"
-
-[dependencies.radicle-cob]
-version = "0"
-path = "../radicle-cob"
-
-[dependencies.radicle-term]
-version = "0"
-path = "../radicle-term"
-
+radicle = { git = "https://seed.radicle.xyz/z3gqcJUoA1n9HaHKufZs5FCSGazv5.git", version = "0" }
+radicle-cob = { git = "https://seed.radicle.xyz/z3gqcJUoA1n9HaHKufZs5FCSGazv5.git", version = "0" }
+radicle-term = { git = "https://seed.radicle.xyz/z3gqcJUoA1n9HaHKufZs5FCSGazv5.git", version = "0" }
