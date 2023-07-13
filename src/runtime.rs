@@ -41,9 +41,10 @@ impl Runtime {
     }
 
     pub fn run(self) -> Result<(), anyhow::Error> {
-        let _t = thread::Builder::new().name(String::from("node-events")).spawn(move || {
+        let t = thread::Builder::new().name(String::from("node-events")).spawn(move || {
             subscribe_to_node_events(self.profile, self.sender)
-        });
+        })?;
+        t.join().unwrap()?;
         Ok(())
     }
 }
@@ -53,7 +54,7 @@ fn trigger_ci_on_patch(repository: &Repository, patch_id: &str, sender: Sender<C
     let patch = patches.get(&patch_id.parse().unwrap()).unwrap().unwrap();
     term::info!("Triggering CI job for patch with ID {patch_id}");
 
-    let repo_id = repository.id.to_string();
+    let repo_id = repository.id.canonical();
     sender.send(CIJob {
         // NOTE: For the time being we are using the repo id for the project name
         project_name: repo_id.clone(),
