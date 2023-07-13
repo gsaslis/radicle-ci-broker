@@ -6,11 +6,11 @@ use crate::ci::CI;
 
 #[derive(Debug)]
 pub struct CIJob {
-    project_name: String,
-    patch_branch: String,
-    patch_head: String,
-    project_id: String,
-    git_uri: String,
+    pub project_name: String,
+    pub patch_branch: String,
+    pub patch_head: String,
+    pub project_id: String,
+    pub git_uri: String,
 }
 
 pub struct Worker<T: CI + Send> {

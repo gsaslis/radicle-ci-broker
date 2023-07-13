@@ -13,14 +13,14 @@ pub struct Pool {
 }
 
 impl Pool {
-    pub fn with<T: CI + Send>(receiver: Receiver<CIJob>, handle: T) -> Self {
+    pub fn with<T: 'static + CI + Send>(receiver: Receiver<CIJob>, handle: T) -> Self {
         // TODO: Make capacity configurable
         let capacity = 5;
         let mut workers = Vec::with_capacity(capacity);
 
         for i in 0..capacity {
             let mut worker = Worker::new(i, receiver.clone(), handle.clone());
-            let thread = thread::Builder::new().name(format!("worker-{}", i)).spawn(move || {
+            let thread = thread::Builder::new().name(format!("worker-{i}")).spawn(move || {
                 term::info!("[{}] Worker {} started", i, worker.id);
                 worker.run()
             }).unwrap();
