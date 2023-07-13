@@ -2,8 +2,8 @@ use std::{thread, time};
 
 use crossbeam_channel::Sender;
 
-use radicle::{Node, Profile};
-use radicle::cob::patch::{Patch, Patches};
+use radicle::{Profile};
+use radicle::cob::patch::{Patches};
 use radicle::node::{Event, Handle};
 use radicle::prelude::ReadStorage;
 use radicle::storage::git::Repository;
@@ -23,6 +23,7 @@ pub struct CIConfig {
 }
 
 pub struct Runtime {
+    #[allow(dead_code)]
     pool: Pool,
     profile: Profile,
     sender: Sender<CIJob>,

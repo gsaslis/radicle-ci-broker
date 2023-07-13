@@ -1,5 +1,5 @@
 pub mod ci;
-mod concourse;
-mod worker;
-mod pool;
+pub mod concourse;
+pub mod worker;
+pub mod pool;
 pub mod runtime;

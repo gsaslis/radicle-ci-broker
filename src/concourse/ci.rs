@@ -88,7 +88,7 @@ impl CI for ConcourseCI {
                 let result = self.api.trigger_job(project_id, &job.name).await;
                 match result {
                     Ok(_) => term::info!("Job {} triggered", job.name),
-                    Err(error) => term::info!("Unable to trigger job {}", job.name),
+                    Err(_error) => term::info!("Unable to trigger job {}", job.name),
                 }
             } else {
                 term::info!("Failed to get pipeline jobs");
