@@ -8,7 +8,7 @@ use radicle_term as term;
 use crate::ci::CI;
 use crate::concourse::api::ConcourseAPI;
 
-struct ConcourseCI {
+pub(crate) struct ConcourseCI {
     runtime: tokio::runtime::Runtime,
     api: ConcourseAPI,
 }
@@ -24,7 +24,8 @@ impl Clone for ConcourseCI {
 }
 
 impl ConcourseCI {
-    fn new(concourse_uri: String, ci_user: String, ci_pass: String) -> Self {
+    // TODO: Create and use a CIConfig struct instead of passing individual parameters
+    pub fn new(concourse_uri: String, ci_user: String, ci_pass: String) -> Self {
         let runtime = tokio::runtime::Runtime::new().unwrap();
         let api = ConcourseAPI::new(concourse_uri, ci_user, ci_pass);
 
