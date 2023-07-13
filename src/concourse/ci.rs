@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use anyhow::Error;
-use tokio::time::{Instant, sleep_until};
+use tokio::time::sleep;
 
 use radicle_term as term;
 
@@ -49,14 +49,13 @@ impl CI for ConcourseCI {
             let result = self.api.create_pipeline(project_name, patch_branch, patch_head, &project_id, git_uri).await;
 
             // TODO: Poll until pipeline is created
+            sleep(Duration::from_secs(10)).await;
 
             if let Ok(()) = result {
                 term::info!("Pipeline configuration creation triggered");
             } else {
                 return Err(anyhow::anyhow!("Failed to trigger create pipeline configuration"));
             }
-
-            sleep_until(Instant::now() + Duration::from_secs(2)).await;
 
             term::info!("Unpausing the pipeline");
             let result = self.api.unpause_pipeline(&project_id).await;
@@ -80,6 +79,7 @@ impl CI for ConcourseCI {
             }
 
             // TODO: Poll until pipeline configuration is completed
+            sleep(Duration::from_secs(10)).await;
 
             let result = self.api.get_pipeline_jobs(project_id).await;
             if let Ok(ref jobs) = &result {
