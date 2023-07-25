@@ -4,22 +4,12 @@ use hyper::{Body, Client, Request, Response};
 use hyper::body::Buf;
 use hyper::client::HttpConnector;
 use hyper::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
-use secstr::SecStr;
 use serde::Deserialize;
 
 use crate::concourse::response_error::ResponseError;
-use crate::concourse::duration::deserialize_to_duration;
+use crate::concourse::token::Token;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct Token {
-    pub access_token: SecStr,
-    #[serde(deserialize_with = "deserialize_to_duration")]
-    pub expires_in: std::time::Duration,
-    pub id_token: String,
-    pub token_type: String,
-}
 
 #[derive(Deserialize, Debug)]
 pub struct PlanStep {
