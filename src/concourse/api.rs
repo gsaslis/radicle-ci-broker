@@ -8,13 +8,15 @@ use secstr::SecStr;
 use serde::Deserialize;
 
 use crate::concourse::response_error::ResponseError;
+use crate::concourse::duration::deserialize_to_duration;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Token {
     pub access_token: SecStr,
-    pub expires_in: i64,
+    #[serde(deserialize_with = "deserialize_to_duration")]
+    pub expires_in: std::time::Duration,
     pub id_token: String,
     pub token_type: String,
 }
