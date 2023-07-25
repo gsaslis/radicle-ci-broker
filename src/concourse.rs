@@ -1,5 +1,7 @@
+mod pipeline_configuration;
+mod pipeline_configuration_job;
+mod token;
+
 pub mod api;
 pub mod ci;
 pub mod response_error;
-mod duration;
-mod token;

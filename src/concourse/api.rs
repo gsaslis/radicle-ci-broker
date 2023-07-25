@@ -6,72 +6,12 @@ use hyper::client::HttpConnector;
 use hyper::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use serde::Deserialize;
 
+use crate::concourse::pipeline_configuration::PipelineConfiguration;
+use crate::concourse::pipeline_configuration_job::{PipelineConfigurationJob, PipelineConfigurationJobExtended};
 use crate::concourse::response_error::ResponseError;
 use crate::concourse::token::Token;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
-
-#[derive(Deserialize, Debug)]
-pub struct PlanStep {
-    pub get: Option<String>,
-    pub version: Option<String>,
-    pub file: Option<String>,
-    pub set_pipeline: Option<String>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct PipelineJob {
-    pub name: String,
-    pub plan: Vec<PlanStep>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Source {
-    pub branch: String,
-    pub uri: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Resource {
-    pub name: String,
-    #[serde(rename = "type")]
-    pub r#type: String,
-    pub source: Source,
-    pub icon: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Config {
-    pub resources: Vec<Resource>,
-    pub jobs: Vec<PipelineJob>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct PipelineConfiguration {
-    pub config: Config,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct PipelineConfigurationJob {
-    pub id: i64,
-    pub team_name: String,
-    pub name: String,
-    pub status: String,
-    pub api_url: String,
-    pub job_name: String,
-    pub pipeline_id: i64,
-    pub pipeline_name: String,
-    pub created_by: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct Job {
-    pub id: i32,
-    pub name: String,
-    pub team_name: String,
-    pub pipeline_id: i32,
-    pub pipeline_name: String,
-}
 
 async fn deserialize_json_response<T>(response: Response<Body>) -> Result<T>
     where
@@ -207,7 +147,7 @@ resources:
         }
     }
 
-    pub async fn trigger_pipeline_configuration(&self, project_id: &String) -> Result<PipelineConfigurationJob> {
+    pub async fn trigger_pipeline_configuration(&self, project_id: &String) -> Result<PipelineConfigurationJobExtended> {
         let request: Request<Body> = Request::builder()
             .method("POST")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}-configure/jobs/configure-pipeline/builds", self.concourse_uri, project_id))
@@ -222,11 +162,11 @@ resources:
             let string = deserialize_string_response(response).await?;
             Err(Box::new(ResponseError { errors: vec![string], warnings: None }))
         } else {
-            deserialize_json_response::<PipelineConfigurationJob>(response).await
+            deserialize_json_response::<PipelineConfigurationJobExtended>(response).await
         }
     }
 
-    pub async fn get_pipeline_jobs(&self, project_id: &String) -> Result<Vec<Job>> {
+    pub async fn get_pipeline_jobs(&self, project_id: &String) -> Result<Vec<PipelineConfigurationJob>> {
         let request = Request::builder()
             .method("GET")
             .uri(format!("{}/api/v1/teams/main/pipelines/{}/jobs", self.concourse_uri, project_id))
@@ -240,7 +180,7 @@ resources:
             let string = deserialize_string_response(response).await?;
             Err(Box::new(ResponseError { errors: vec![string], warnings: None }))
         } else {
-            let result = deserialize_json_response::<Vec<Job>>(response).await?;
+            let result = deserialize_json_response::<Vec<PipelineConfigurationJob>>(response).await?;
             Ok(result)
         }
     }
