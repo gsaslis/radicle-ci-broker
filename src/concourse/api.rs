@@ -4,6 +4,7 @@ use hyper::{Body, Client, Request, Response};
 use hyper::body::Buf;
 use hyper::client::HttpConnector;
 use hyper::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
+use secstr::SecStr;
 use serde::Deserialize;
 
 use crate::concourse::response_error::ResponseError;
@@ -12,7 +13,7 @@ pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + S
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Token {
-    pub access_token: String,
+    pub access_token: SecStr,
     pub expires_in: i64,
     pub id_token: String,
     pub token_type: String,
