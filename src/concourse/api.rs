@@ -5,6 +5,7 @@ use hyper::body::Buf;
 use hyper::client::HttpConnector;
 use hyper::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use serde::Deserialize;
+use crate::ci::CIJob;
 
 use crate::concourse::pipeline_configuration::PipelineConfiguration;
 use crate::concourse::pipeline_configuration_job::{PipelineConfigurationJob, PipelineConfigurationJobExtended};
@@ -88,7 +89,9 @@ impl ConcourseAPI {
         }
     }
 
-    pub async fn create_pipeline(&self, project_name: String, patch_branch: String, patch_head: String, project_id: &String, git_uri: String) -> Result<()> {
+    pub async fn create_pipeline(&self, job: &CIJob) -> Result<()> {
+        let CIJob { project_name, patch_branch, patch_head, project_id, git_uri } = job;
+
         let body = format!(r#"
 jobs:
 - name: configure-pipeline

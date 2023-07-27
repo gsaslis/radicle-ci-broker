@@ -2,11 +2,10 @@ use std::thread;
 use std::thread::JoinHandle;
 
 use crossbeam_channel::{Receiver, RecvError};
-
 use radicle_term as term;
 
-use crate::ci::CI;
-use crate::worker::{CIJob, Worker};
+use crate::ci::{CI, CIJob};
+use crate::worker::Worker;
 
 pub struct Pool {
     workers: Vec<JoinHandle<Result<(), RecvError>>>,

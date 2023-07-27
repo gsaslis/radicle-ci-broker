@@ -1,17 +1,7 @@
 use crossbeam_channel::{Receiver, RecvError};
-
 use radicle_term as term;
 
-use crate::ci::CI;
-
-#[derive(Debug)]
-pub struct CIJob {
-    pub project_name: String,
-    pub patch_branch: String,
-    pub patch_head: String,
-    pub project_id: String,
-    pub git_uri: String,
-}
+use crate::ci::{CI, CIJob};
 
 pub struct Worker<T: CI + Send> {
     pub(crate) id: usize,
@@ -33,8 +23,16 @@ impl<T: CI + Send> Worker<T> {
 
     fn process(&mut self, job: CIJob) {
         term::info!("[{}] Worker {} received job: {:?}", self.id, self.id, job);
-        self.ci.setup(job.project_name, job.patch_branch, job.patch_head, &job.project_id, job.git_uri).unwrap();
-        self.ci.run_pipeline(&job.project_id).unwrap();
+        let CIJob { project_name, patch_branch, patch_head, project_id, git_uri } = job;
+
+        self.ci.setup(CIJob {
+            project_name,
+            patch_branch,
+            patch_head,
+            project_id: project_id.clone(),
+            git_uri,
+        }).unwrap();
+        self.ci.run_pipeline(&project_id).unwrap();
     }
 }
 

@@ -1,18 +1,17 @@
 use std::{thread, time};
 
 use crossbeam_channel::Sender;
-
-use radicle::{Profile};
-use radicle::cob::patch::{Patches};
+use radicle::Profile;
+use radicle::cob::patch::Patches;
 use radicle::node::{Event, Handle};
 use radicle::prelude::ReadStorage;
 use radicle::storage::git::Repository;
 use radicle::storage::RefUpdate;
 use radicle_term as term;
 
+use crate::ci::CIJob;
 use crate::concourse::ci;
 use crate::pool::Pool;
-use crate::worker::CIJob;
 
 // TODO: Capture SIGINT and SIGTERM to gracefully shutdown
 

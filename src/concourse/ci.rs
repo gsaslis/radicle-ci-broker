@@ -5,7 +5,7 @@ use tokio::time::sleep;
 
 use radicle_term as term;
 
-use crate::ci::CI;
+use crate::ci::{CI, CIJob};
 use crate::concourse::api::ConcourseAPI;
 
 pub(crate) struct ConcourseCI {
@@ -34,7 +34,7 @@ impl ConcourseCI {
 }
 
 impl CI for ConcourseCI {
-    fn setup(&mut self, project_name: String, patch_branch: String, patch_head: String, project_id: &String, git_uri: String) -> Result<(), Error> {
+    fn setup(&mut self, job: CIJob) -> Result<(), Error> {
         self.runtime.block_on(async {
             term::info!("Getting access token");
             let result = self.api.get_access_token().await;
@@ -46,7 +46,7 @@ impl CI for ConcourseCI {
             }
 
             term::info!("Creating the pipeline");
-            let result = self.api.create_pipeline(project_name, patch_branch, patch_head, &project_id, git_uri).await;
+            let result = self.api.create_pipeline(&job).await;
 
             // TODO: Poll until pipeline is created
             sleep(Duration::from_secs(10)).await;
@@ -58,7 +58,7 @@ impl CI for ConcourseCI {
             }
 
             term::info!("Unpausing the pipeline");
-            let result = self.api.unpause_pipeline(&project_id).await;
+            let result = self.api.unpause_pipeline(&job.project_id).await;
             if let Ok(job) = result {
                 term::info!("Pipeline configuration unpaused {:?}", job);
             } else {
